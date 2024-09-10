@@ -1,9 +1,18 @@
-import joblib
-from fastapi import FastAPI
-from pydantic import BaseModel
 from typing import List
 
+import joblib
+import uvicorn
+from fastapi import FastAPI
+from pydantic import BaseModel
+
 app = FastAPI()
+
+# Define the labels corresponding to the target classes
+LABELS = [
+    "Verdante",  # A vibrant and fresh wine, inspired by its balanced acidity and crisp flavors.
+    "Rubresco",  # A rich and robust wine, named for its deep, ruby color and bold taste profile.
+    "Floralis",  # A fragrant and elegant wine, known for its floral notes and smooth finish.
+]
 
 
 class Features(BaseModel):
@@ -19,11 +28,12 @@ model = load_model("model.pkl")
 
 @app.post("/predict")
 def predict(features: Features):
-    prediction = model.predict([features.features])
-    return {"prediction": prediction.tolist()}
+    # Get the numerical prediction
+    prediction_index = model.predict([features.features])[0]
+    # Map the numerical prediction to the label
+    prediction_label = LABELS[prediction_index]
+    return {"prediction": prediction_label}
 
 
 if __name__ == "__main__":
-    import uvicorn
-
-    uvicorn.run(app, host="0.0.0.0", port=9000)
+    uvicorn.run(app, host="127.0.0.1", port=9000)

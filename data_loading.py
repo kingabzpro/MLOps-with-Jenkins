@@ -1,12 +1,15 @@
-from sklearn.datasets import load_iris
+from sklearn.datasets import load_wine
 from sklearn.model_selection import train_test_split
 import pandas as pd
+import joblib
 
 
 def load_data():
-    iris = load_iris()
-    data = pd.DataFrame(data=iris.data, columns=iris.feature_names)
-    data["target"] = iris.target
+    # Load the wine dataset
+    wine = load_wine(as_frame=True)
+    data = pd.DataFrame(data=wine.data, columns=wine.feature_names)
+    data["target"] = wine.target
+    print(data.head())
     return data
 
 
@@ -24,7 +27,12 @@ def split_data(data, target_column="target"):
     return X_train, X_test, y_train, y_test
 
 
+def save_preprocessed_data(X_train, X_test, y_train, y_test, file_path):
+    joblib.dump((X_train, X_test, y_train, y_test), file_path)
+
+
 if __name__ == "__main__":
     data = load_data()
     data = preprocess_data(data)
     X_train, X_test, y_train, y_test = split_data(data)
+    save_preprocessed_data(X_train, X_test, y_train, y_test, "preprocessed_data.pkl")
