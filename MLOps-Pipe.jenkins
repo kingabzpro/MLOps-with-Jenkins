@@ -43,15 +43,26 @@ pipeline {
             }
         }
 
-        stage('Testing Serve Model') {
+        stage('Serve Model') {
             steps {
                 script {
-                    // Start FastAPI server in new windows
-                    bat 'start python model_serving.py'
-    
-                    bat 'curl -X GET http://127.0.0.1:9000'
-                    
-                    
+                    // Start FastAPI server in the background
+                    bat 'start /B python model_serving.py'
+                    // Wait for the server to start
+                    sleep time: 10, unit: 'SECONDS'
+                }
+            }
+        }
+
+        stage('Test Serve Model') {
+            steps {
+                script {
+                    // Test the server with sample values
+                    bat '''
+                        curl -X POST "http://127.0.0.1:9000/predict" ^
+                        -H "Content-Type: application/json" ^
+                        -d "{\\"features\\": [13.2, 2.77, 2.51, 18.5, 103.0, 1.15, 2.61, 0.26, 1.46, 3.0, 1.05, 3.33, 820.0]}"
+                    '''
                 }
             }
         }
@@ -59,7 +70,6 @@ pipeline {
         stage('Deploy Model') {
             steps {
                 script {
-                    
                     // Trigger another Jenkins job for model serving
                     build job: 'ModelServingPipeline', wait: false
                 }
