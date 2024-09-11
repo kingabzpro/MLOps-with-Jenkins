@@ -13,11 +13,6 @@ def load_data():
     return data
 
 
-def preprocess_data(data):
-    # Example preprocessing steps
-    return data
-
-
 def split_data(data, target_column="target"):
     X = data.drop(columns=[target_column])
     y = data[target_column]
@@ -33,6 +28,5 @@ def save_preprocessed_data(X_train, X_test, y_train, y_test, file_path):
 
 if __name__ == "__main__":
     data = load_data()
-    data = preprocess_data(data)
     X_train, X_test, y_train, y_test = split_data(data)
     save_preprocessed_data(X_train, X_test, y_train, y_test, "preprocessed_data.pkl")
